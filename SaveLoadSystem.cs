@@ -5,7 +5,7 @@ using System.Text.Json;
 
 internal class SaveLoadSystem
 {
-    internal static void LoadProductsList(Inventory inventory)
+    internal static void LoadProductsList(ProductsManager inventory)
     {
         string filePath = GetJsonFilePath();
 
@@ -22,13 +22,16 @@ internal class SaveLoadSystem
 
         if (loadedSaveData == null) { Helpers.ThrowErrorMessage("Failed to load product list"); return; }
 
+        IdManager.SetNextId(loadedSaveData);
+
         Helpers.ThrowSuccessMessage("Product list loaded successfully"); 
         inventory.productsList = loadedSaveData.ProductsList;
     }
-    internal static void SaveProductsList(Inventory inventory)
+    internal static void SaveProductsList(ProductsManager inventory)
     {
         ProductListSaveData saveData = new ProductListSaveData();
         saveData.ProductsList = inventory.productsList;
+        IdManager.GetNextId(saveData);
 
         string jsonToSave = JsonSerializer.Serialize(saveData, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(GetJsonFilePath(), jsonToSave);
@@ -41,9 +44,10 @@ internal class SaveLoadSystem
         string filePath = "products.json";
         return filePath;
     }
-    internal class ProductListSaveData
-    {
-        public List<Product> ProductsList { get; set; } = new();
-    }
-
+    
+}
+internal class ProductListSaveData
+{
+    public List<Product> ProductsList { get; set; } = new();
+    public int NextID { get; set; }
 }

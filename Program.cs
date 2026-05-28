@@ -1,4 +1,4 @@
-﻿Inventory inventory = new Inventory();
+﻿ProductsManager inventory = new ProductsManager();
 SaveLoadSystem.LoadProductsList(inventory);
 
 Helpers.ShowMainMenuText();
