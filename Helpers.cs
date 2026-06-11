@@ -26,6 +26,13 @@ internal class Helpers
         Console.WriteLine(errorString);
         Console.ResetColor();
     }
+    internal static void ShowEmptyListErrorMessage()
+    {
+        Helpers.ThrowErrorMessage("There are no products in the list");
+        Helpers.WhaitForPressAnyKeyInput();
+        Console.Clear();
+        Helpers.ShowMainMenuText();
+    }
     internal static void WhaitForPressAnyKeyInput()
     {
         Console.WriteLine();

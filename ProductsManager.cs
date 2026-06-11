@@ -37,8 +37,12 @@ internal class ProductsManager
     }
     internal void UpdateProduct()
     {
+        if (productsList.Count == 0) { Helpers.ShowEmptyListErrorMessage(); return; }
+
         while (true)
         {
+            ProductsManagerHelper.DisplayAllProductsInList(productsList);
+            Console.WriteLine();
             Console.WriteLine("Write the exact ID of a product to update its ID, name, quantity, or price");
             Console.WriteLine("Or write 'Q' to return to the main menu");
 
@@ -46,11 +50,11 @@ internal class ProductsManager
 
             if (productToEdit == null) { return; }
 
+            Console.Clear();
             bool searchForAnotherProduct = false;
 
             while (searchForAnotherProduct == false)
             {
-                Console.WriteLine();
                 Console.WriteLine("Which part of the product do you want to update?");
                 Console.WriteLine("1 - ID");
                 Console.WriteLine("2 - Name");
@@ -109,8 +113,12 @@ internal class ProductsManager
     }
     internal void DeleteProduct()
     {
+        if (productsList.Count == 0) { Helpers.ShowEmptyListErrorMessage(); return; }
+
         while (true)
         {
+            ProductsManagerHelper.DisplayAllProductsInList(productsList);
+            Console.WriteLine();
             Console.WriteLine("Write the exact ID of the product you want to delete from the list");
             Console.WriteLine("Or write 'Q' to return to the main menu");
 
@@ -147,14 +155,7 @@ internal class ProductsManager
     }
     internal void ViewProducts()
     {
-        if (productsList.Count == 0)
-        {
-            Helpers.ThrowErrorMessage("There are no products in the list");
-            Helpers.WhaitForPressAnyKeyInput();
-            Console.Clear();
-            Helpers.ShowMainMenuText();
-            return;
-        }
+        if (productsList.Count == 0) { Helpers.ShowEmptyListErrorMessage(); return; }
 
         Console.WriteLine("All products in list:");
         ProductsManagerHelper.DisplayAllProductsInList(productsList);
