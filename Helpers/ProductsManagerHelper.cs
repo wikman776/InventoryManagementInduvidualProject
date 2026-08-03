@@ -89,47 +89,40 @@ internal class ProductsManagerHelper
             return InputResult.ContinueWithProcess; 
         }
     }
+    
     #endregion
 
     #region Display Product
-    internal static void DisplayAllProductsInList(List<Product> productsList)
+    internal static void DisplayAllProductsInList(List<Product> productsList, ConsoleColor choosenColor)
     {
-        int idPadding = Math.Max("ID".Length, productsList.Max(product => product.ID.ToString().Length)) + textPadding;
+        int codePadding = Math.Max( "Product Code".Length, productsList.Max(product => product.ProductCode.Length)) + textPadding;
         int namePadding = Math.Max("Name".Length, productsList.Max(product => product.Name.Length)) + textPadding;
         int quantityPadding = Math.Max("Quantity".Length, productsList.Max(product => product.Quantity.ToString().Length)) + textPadding;
 
-        idPadding += textPadding;
-        quantityPadding += textPadding;
-        namePadding += textPadding;
+        Console.WriteLine(DisplayProductHeader(codePadding, quantityPadding, namePadding));
 
-        Console.WriteLine(DisplayProductHeader(idPadding, quantityPadding, namePadding));
-
-        Console.ForegroundColor = ConsoleColor.Green;
-        foreach (Product product in productsList.OrderBy(product => product.ID).ThenBy(product => product.Price))
+        Console.ForegroundColor = choosenColor;
+        foreach (Product product in productsList.OrderBy(product => product.ProductCode).ThenBy(product => product.Price))
         {
-            Console.WriteLine(product.ConvertProductToString(product, quantityPadding, namePadding, idPadding));
+            Console.WriteLine(product.ConvertProductToString(product, quantityPadding, namePadding, codePadding));
         }
         Console.ResetColor();
     }
     internal static void DisplaySingleProduct(Product productToDisplay)
     {
-        int idPadding = Math.Max("ID".Length, productToDisplay.ID.ToString().Length) + textPadding;
+        int codePadding = Math.Max("Product Code".Length, productToDisplay.ProductCode.Length) + textPadding;
         int namePadding = Math.Max("Name".Length, productToDisplay.Name.Length) + textPadding;
         int quantityPadding = Math.Max("Quantity".Length, productToDisplay.Quantity.ToString().Length) + textPadding;
 
-        idPadding += textPadding;
-        quantityPadding += textPadding;
-        namePadding += textPadding;
-
-        Console.WriteLine(DisplayProductHeader(idPadding, quantityPadding, namePadding));
+        Console.WriteLine(DisplayProductHeader(codePadding, quantityPadding, namePadding));
 
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine(productToDisplay.ConvertProductToString(productToDisplay, quantityPadding, namePadding, idPadding));
+        Console.WriteLine(productToDisplay.ConvertProductToString(productToDisplay, quantityPadding, namePadding, codePadding));
         Console.ResetColor();
     }
-    private static string DisplayProductHeader(int idPadding, int quantityPadding, int namePadding)
+    private static string DisplayProductHeader(int codePadding, int quantityPadding, int namePadding)
     {
-        return "ID".PadRight(idPadding) +
+        return "Product Code".PadRight(codePadding) +
                "Name".PadRight(namePadding) +
                "Quantity".PadRight(quantityPadding) +
                "Price";
@@ -139,7 +132,6 @@ internal class ProductsManagerHelper
         Console.Clear();
         Helpers.ThrowSuccessMessage("The product was updated successfully.");
         Console.WriteLine();
-        ProductsManagerHelper.DisplaySingleProduct(product);
     }
     #endregion
 }

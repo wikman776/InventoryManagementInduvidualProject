@@ -4,7 +4,9 @@ using System.Text;
 
 internal class ProductsManager
 {
-    public List<Product> productsList = new List<Product>();
+    private readonly ProductRepository productRepository = new ProductRepository();
+    public List<Product> productsList;
+    internal ProductsManager() { productsList = productRepository.GetAllProducts(); }
 
     internal void AddProduct()
     {
@@ -27,8 +29,10 @@ internal class ProductsManager
             if (priceResult == InputResult.ReturnToMainMenu) { Console.Clear(); Helpers.ShowMainMenuText(); return; }
             else if (priceResult == InputResult.RestartCurrentProcess) { Console.Clear();  continue;  }
 
-            newProduct.ID = IdManager.GenerateProductId(productsList);
-            productsList.Add(newProduct);
+            newProduct.ProductCode = ProductCodeManager.GenerateProductCode(productsList);
+            productRepository.AddProduct(newProduct);
+            productsList = productRepository.GetAllProducts();
+
             Console.Clear();
             ProductsManagerHelper.DisplaySingleProduct(newProduct);
             Helpers.ThrowSuccessMessage("The product has been successfully added to the list!");
@@ -41,12 +45,12 @@ internal class ProductsManager
 
         while (true)
         {
-            ProductsManagerHelper.DisplayAllProductsInList(productsList);
+            ProductsManagerHelper.DisplayAllProductsInList(productsList, ConsoleColor.Yellow);
             Console.WriteLine();
-            Console.WriteLine("Write the exact ID of a product to update its ID, name, quantity, or price");
+            Console.WriteLine("Write the exact product code of a product to update its code, name, quantity, or price");
             Console.WriteLine("Or write 'Q' to return to the main menu");
 
-            Product? productToEdit = IdManager.SearchForProductById(productsList);
+            Product? productToEdit = ProductCodeManager.SearchForProductByCode(productsList);
 
             if (productToEdit == null) { return; }
 
@@ -55,8 +59,11 @@ internal class ProductsManager
 
             while (searchForAnotherProduct == false)
             {
+                ProductsManagerHelper.DisplaySingleProduct(productToEdit);
+                Console.WriteLine();
+
                 Console.WriteLine("Which part of the product do you want to update?");
-                Console.WriteLine("1 - ID");
+                Console.WriteLine("1 - Product Code");
                 Console.WriteLine("2 - Name");
                 Console.WriteLine("3 - Quantity");
                 Console.WriteLine("4 - Price");
@@ -69,30 +76,28 @@ internal class ProductsManager
                 switch (newInput)
                 {
                     case "1":
-                        InputResult idResult = IdManager.WriteTheIdOfTheProduct(productsList, productToEdit);
+                        InputResult idResult = ProductCodeManager.WriteTheProductCode(productsList, productToEdit);
                         if (idResult == InputResult.ReturnToMainMenu) { Console.Clear(); Helpers.ShowMainMenuText(); return; }
-                        else if (idResult == InputResult.RestartCurrentProcess) { Console.Clear(); ProductsManagerHelper.DisplaySingleProduct(productToEdit); continue; }
-                        ProductsManagerHelper.SuccessfullyEditedProducted(productToEdit);
+                        else if (idResult == InputResult.RestartCurrentProcess) { Console.Clear();  continue; }
+                        else { SaveUpdatedProduct(productToEdit); }
                         break;
                     case "2":
                         InputResult nameResult = ProductsManagerHelper.WriteTheNameOfTheProduct(productsList, productToEdit);
                         if (nameResult == InputResult.ReturnToMainMenu) { Console.Clear(); Helpers.ShowMainMenuText(); return; }
-                        else if (nameResult == InputResult.RestartCurrentProcess) { Console.Clear(); ProductsManagerHelper.DisplaySingleProduct(productToEdit); continue; }
-                        ProductsManagerHelper.SuccessfullyEditedProducted(productToEdit);
-
+                        else if (nameResult == InputResult.RestartCurrentProcess) { Console.Clear(); continue; }
+                        else { SaveUpdatedProduct(productToEdit); }
                         break;
                     case "3":
                         InputResult quantityResult = ProductsManagerHelper.WriteTheQuantityOfTheProduct(productsList, productToEdit);
                         if (quantityResult == InputResult.ReturnToMainMenu) { Console.Clear(); Helpers.ShowMainMenuText(); return; }
-                        else if (quantityResult == InputResult.RestartCurrentProcess) { Console.Clear(); ProductsManagerHelper.DisplaySingleProduct(productToEdit); continue; }
-                        ProductsManagerHelper.SuccessfullyEditedProducted(productToEdit);
-
+                        else if (quantityResult == InputResult.RestartCurrentProcess) { Console.Clear();  continue; }
+                        else { SaveUpdatedProduct(productToEdit); }
                         break;
                     case "4":
                         InputResult priceResult = ProductsManagerHelper.WriteThePriceOfTheProduct(productsList, productToEdit);
                         if (priceResult == InputResult.ReturnToMainMenu) { Console.Clear(); Helpers.ShowMainMenuText(); return; }
-                        else if (priceResult == InputResult.RestartCurrentProcess) { Console.Clear(); ProductsManagerHelper.DisplaySingleProduct(productToEdit); continue; }
-                        ProductsManagerHelper.SuccessfullyEditedProducted(productToEdit);
+                        else if (priceResult == InputResult.RestartCurrentProcess) { Console.Clear(); continue; }
+                        else { SaveUpdatedProduct(productToEdit); }
                         break;
                     case "q":
                     case "Q":
@@ -105,6 +110,7 @@ internal class ProductsManager
                         searchForAnotherProduct = true;
                         break;
                     default:
+                        Console.Clear();
                         Helpers.ThrowErrorMessage("Invalid selection.");
                         continue;
                 }
@@ -117,23 +123,27 @@ internal class ProductsManager
 
         while (true)
         {
-            ProductsManagerHelper.DisplayAllProductsInList(productsList);
+            ProductsManagerHelper.DisplayAllProductsInList(productsList, ConsoleColor.Yellow);
             Console.WriteLine();
-            Console.WriteLine("Write the exact ID of the product you want to delete from the list");
+            Console.WriteLine("Write the exact product code of the product you want to delete from the list");
             Console.WriteLine("Or write 'Q' to return to the main menu");
 
-            Product? productToDelete = IdManager.SearchForProductById(productsList);
+            Product? productToDelete = ProductCodeManager.SearchForProductByCode(productsList);
 
             if (productToDelete == null) { return; }
 
+            Console.Clear();
+
             while(true)
             {
+                ProductsManagerHelper.DisplaySingleProduct(productToDelete);
                 Console.Write("Are you sure you want to delete this product? (y/n): ");
                 string confirmInput = Console.ReadLine().Trim();
 
                 if (string.Equals(confirmInput, "y", StringComparison.OrdinalIgnoreCase))
                 {
-                    productsList.Remove(productToDelete);
+                    productRepository.DeleteProduct(productToDelete.Id);
+                    productsList = productRepository.GetAllProducts();
                     Console.Clear();
                     Helpers.ThrowSuccessMessage("Product was successfully deleted");
                     break;
@@ -158,7 +168,7 @@ internal class ProductsManager
         if (productsList.Count == 0) { Helpers.ShowEmptyListErrorMessage(); return; }
 
         Console.WriteLine("All products in list:");
-        ProductsManagerHelper.DisplayAllProductsInList(productsList);
+        ProductsManagerHelper.DisplayAllProductsInList(productsList, ConsoleColor.Green);
 
         Helpers.WhaitForPressAnyKeyInput();
         Console.Clear();
@@ -195,11 +205,11 @@ internal class ProductsManager
 
         report += "Inventory value per product:\n";
 
-        foreach (Product product in productsList.OrderBy(product => product.ID))
+        foreach (Product product in productsList.OrderBy(product => product.Id))
         {
             decimal productTotalValue = product.Price * product.Quantity;
 
-            report += product.ID + " - " +
+            report += product.Id + " - " +
                       product.Name + ": " +
                       product.Quantity + " x " +
                       product.Price.ToString("0.00") + " = " +
@@ -230,8 +240,10 @@ internal class ProductsManager
 
         
     }
-
-    #region List Helpers
-    
-    #endregion
+    private void SaveUpdatedProduct(Product product)
+    {
+        productRepository.UpdateProduct(product);
+        productsList = productRepository.GetAllProducts();
+        ProductsManagerHelper.SuccessfullyEditedProducted(product);
+    }
 }

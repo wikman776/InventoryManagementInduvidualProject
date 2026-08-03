@@ -1,5 +1,4 @@
-﻿ProductsManager inventory = new ProductsManager();
-SaveLoadSystem.LoadProductsList(inventory);
+﻿ProductsManager pm = new ProductsManager();
 
 Helpers.ShowMainMenuText();
 
@@ -17,19 +16,19 @@ while (isRunning)
     switch (userInput)
     {
         case "1":
-            inventory.AddProduct();
+            pm.AddProduct();
             break;
         case "2":
-            inventory.UpdateProduct();
+            pm.UpdateProduct();
             break;
         case "3":
-            inventory.DeleteProduct();
+            pm.DeleteProduct();
             break;
         case "4":
-            inventory.ViewProducts();
+            pm.ViewProducts();
             break;
         case "5":
-            inventory.GenerateReport();
+            pm.GenerateReport();
             break;
         case "0":
             isRunning = false;
@@ -41,5 +40,3 @@ while (isRunning)
             break;
     }
 }
-
-SaveLoadSystem.SaveProductsList(inventory);
